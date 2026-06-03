@@ -27,7 +27,7 @@ export const App = () => {
 
 	return (
 		<main
-			className={clsx(styles.main)}
+			className={clsx('index-module__main', styles.main)}
 			style={mapStateToCssVariables(appliedArticleState)}>
 			<ArticleParamsForm
 				initialState={defaultArticleState}
