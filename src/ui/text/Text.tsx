@@ -39,9 +39,11 @@ export const Text = ({
 	family = 'open-sans',
 	dynamicLite = false,
 }: TextProps) => {
+	const sizeClassName = dynamic ? undefined : styles[`size${size}`];
+
 	const className = clsx(
 		styles.text,
-		styles[`size${size}`],
+		sizeClassName,
 		{ [styles.dynamic]: dynamic },
 		styles[`weight${weight}`],
 		styles[`${fontStyle}`],
