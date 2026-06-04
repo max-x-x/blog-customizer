@@ -5,6 +5,7 @@ import {
 	OptionType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -27,12 +28,12 @@ export const ArticleParamsForm = ({
 	initialState,
 	onApply,
 }: ArticleParamsFormProps) => {
-	const [isOpen, setIsOpen] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [draftState, setDraftState] = useState<ArticleStateType>(initialState);
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (!isOpen) {
+		if (!isSidebarOpen) {
 			return;
 		}
 
@@ -41,7 +42,7 @@ export const ArticleParamsForm = ({
 				event.target instanceof Node &&
 				!rootRef.current?.contains(event.target)
 			) {
-				setIsOpen(false);
+				setIsSidebarOpen(false);
 			}
 		};
 
@@ -50,31 +51,16 @@ export const ArticleParamsForm = ({
 		return () => {
 			window.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [isOpen]);
+	}, [isSidebarOpen]);
 
 	const handleSidebarToggle = () => {
-		setIsOpen((previousValue) => !previousValue);
+		setIsSidebarOpen((previousValue) => !previousValue);
 	};
 
-	const handleArticleFontFamilyChange = (fontFamilyOption: OptionType) => {
-		setDraftState((previousState) => ({ ...previousState, fontFamilyOption }));
-	};
-
-	const handleArticleFontSizeChange = (fontSizeOption: OptionType) => {
-		setDraftState((previousState) => ({ ...previousState, fontSizeOption }));
-	};
-
-	const handleArticleFontColorChange = (fontColor: OptionType) => {
-		setDraftState((previousState) => ({ ...previousState, fontColor }));
-	};
-
-	const handleArticleBackgroundColorChange = (backgroundColor: OptionType) => {
-		setDraftState((previousState) => ({ ...previousState, backgroundColor }));
-	};
-
-	const handleArticleWidthChange = (contentWidth: OptionType) => {
-		setDraftState((previousState) => ({ ...previousState, contentWidth }));
-	};
+	const updateFormField =
+		(field: keyof ArticleStateType) => (value: OptionType) => {
+			setDraftState((previousState) => ({ ...previousState, [field]: value }));
+		};
 
 	const handleArticleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -83,15 +69,17 @@ export const ArticleParamsForm = ({
 
 	const handleArticleFormReset = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setDraftState(initialState);
-		onApply(initialState);
+		setDraftState(defaultArticleState);
+		onApply(defaultArticleState);
 	};
 
 	return (
 		<div ref={rootRef}>
-			<ArrowButton isOpen={isOpen} onClick={handleSidebarToggle} />
+			<ArrowButton isOpen={isSidebarOpen} onClick={handleSidebarToggle} />
 			<aside
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+				className={clsx(styles.container, {
+					[styles.container_open]: isSidebarOpen,
+				})}>
 				<form
 					className={styles.form}
 					onSubmit={handleArticleFormSubmit}
@@ -105,33 +93,33 @@ export const ArticleParamsForm = ({
 							title='Шрифт'
 							selected={draftState.fontFamilyOption}
 							options={fontFamilyOptions}
-							onChange={handleArticleFontFamilyChange}
+							onChange={updateFormField('fontFamilyOption')}
 						/>
 						<RadioGroup
 							name='radio'
 							title='Размер шрифта'
 							selected={draftState.fontSizeOption}
 							options={fontSizeOptions}
-							onChange={handleArticleFontSizeChange}
+							onChange={updateFormField('fontSizeOption')}
 						/>
 						<Select
 							title='Цвет шрифта'
 							selected={draftState.fontColor}
 							options={fontColors}
-							onChange={handleArticleFontColorChange}
+							onChange={updateFormField('fontColor')}
 						/>
 						<Separator />
 						<Select
 							title='Цвет фона'
 							selected={draftState.backgroundColor}
 							options={backgroundColors}
-							onChange={handleArticleBackgroundColorChange}
+							onChange={updateFormField('backgroundColor')}
 						/>
 						<Select
 							title='Ширина контента'
 							selected={draftState.contentWidth}
 							options={contentWidthArr}
-							onChange={handleArticleWidthChange}
+							onChange={updateFormField('contentWidth')}
 						/>
 					</div>
 					<div className={styles.bottomContainer}>
